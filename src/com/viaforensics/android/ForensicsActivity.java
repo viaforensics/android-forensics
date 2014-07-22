@@ -44,13 +44,14 @@ import android.widget.Toast;
 
 import com.viaforensics.android.aflogical_ose.R;
 import com.viaforensics.android.os.ExternalStorageHandler;
+import com.viaforensics.android.os.GetRemovableDevice;
 import com.viaforensics.android.providers.ForensicsProvider;
 import com.viaforensics.android.util.PackageManagerHelper;
 import com.viaforensics.android.view.ForensicsProviderListManager;
 
 public class ForensicsActivity extends ListActivity implements OnClickListener {
 
-	private static final String TAG = "com.viaforensics.android.ForensicsActivity";
+	public static final String TAG = "com.viaforensics.android.ForensicsActivity";
 	private ForensicsGatherer mGatherer = null;
 	private ForensicsProviderListManager listManager;
 	
@@ -59,8 +60,17 @@ public class ForensicsActivity extends ListActivity implements OnClickListener {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		Log.i(TAG, "Version: " + PackageManagerHelper.getVersionName(this));
-		
+		Log.d(TAG, "Version: " + PackageManagerHelper.getVersionName(this));
+		String[] myDirs = GetRemovableDevice.getDirectories();
+		if(myDirs != null) {
+//			for (int i = 0; i < myDirs.length; i++) {
+//				Log.d(TAG, "[" + i + "] " + myDirs[i]);
+//			}
+			if(myDirs.length == 1 && myDirs[0].equalsIgnoreCase("sdcard not found")) {
+				Toast.makeText(getApplicationContext(), "Removable Storage (external SD card) not found", 
+						Toast.LENGTH_LONG).show();
+			}
+		}
 		if ( ! ExternalStorageHandler.isMounted() ) {
 			if ( Environment.getExternalStorageState().equals(Environment.MEDIA_SHARED) ) {
 				usbMountedAlert();
@@ -85,10 +95,7 @@ public class ForensicsActivity extends ListActivity implements OnClickListener {
 				
 				populateProvidersDisplayList();
 			}
-		}
-		
-		
-		
+		}		
 	}
 	
 	public ForensicsProviderListManager getListManager() {
